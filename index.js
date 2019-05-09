@@ -56,20 +56,50 @@ server.post('/api/users', (req, res) => {
 });
 
 server.delete('/api/users/:id', (req, res) => {
-    const { id } = req.params;
-    db.remove(id)
-    .then(res => {
-        if (res === 0) {
-            res.status(404).json({err: 'The user with the specified ID does not exist.'})
-        } else {
-            res.json({message: 'User has been deleted'})
-        };
-    })
-    .catch(err => {
-        res.status(500).json({err: 'The user could not be removed'});
-    });
+    const {id} = req.params;
+    db
+        .remove(id)
+        .then(res => {
+            if (res === 0) {
+                res
+                    .status(404)
+                    .json({err: 'The user with the specified ID does not exist.'})
+                return;
+            } else {
+                res.json({message: 'User has been deleted'})
+            }
+        })
+        .catch(err => {
+            res
+                .status(500)
+                .json({error: 'The user could not be removed'});
+        });
 });
 
+server.put('/api/users/:id', (req, res) => {
+    const {id} = req.params;
+    const {name, bio} = req.body;
+    if (!name || !bio) {
+        sendUserError(400, 'Must provide name and bio', res);
+        return;
+    }
+    db
+        .update(id, {name, bio})
+        .then(res => {
+            if (res === 0) {
+                res
+                    .status(400)
+                    .json({err: 'User with specified id does not exist'})
+                return;
+            }
+        })
+        .catch(error => {
+            res
+                .status(500)
+                .json({err: 'The user information could not be modified.'})
+            return;
+        });
+});
 
 server.listen(3000, () => {
     console.log('Listening on port 3000');
