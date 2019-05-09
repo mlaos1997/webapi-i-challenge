@@ -80,7 +80,7 @@ server.put('/api/users/:id', (req, res) => {
     const {id} = req.params;
     const {name, bio} = req.body;
     if (!name || !bio) {
-        sendUserError(400, 'Must provide name and bio', res);
+       res.status(400).json({err: 'Please provide name and bio for user'})
         return;
     }
     db
